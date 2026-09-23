@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 public class TransactionSummaryResponse {
 
     private String transactionCode;
-    private TransactionType type;
+    private TransactionType transactionType;
     private BigDecimal amount;
-    private BigDecimal newBalance;
     private LocalDateTime createdAt;
 }

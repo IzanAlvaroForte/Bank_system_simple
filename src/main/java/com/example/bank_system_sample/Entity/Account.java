@@ -26,11 +26,11 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     @Column (name = "account_type", nullable = false)
-    private String accountType;
+    private AccountType accountType;
 
     @Enumerated(EnumType.STRING)
     @Column (name = "account_status", nullable = false)
-    private String accountStatus;
+    private AccountStatus accountStatus;
 
     @Column (name = "balance", nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;

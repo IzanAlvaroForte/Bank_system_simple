@@ -33,11 +33,11 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     @Column (name = "transaction_status", nullable = false)
-    private String transactionStatus;
+    private TransactionStatus transactionStatus;
 
     @Enumerated(EnumType.STRING)
     @Column (name = "transaction_type", nullable = false)
-    private String transactionType;
+    private TransactionType transactionType;
 
     @Column (name = "transaction_code", unique = true, nullable = false)
     private String transactionCode;
