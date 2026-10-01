@@ -33,7 +33,7 @@ public class Customer {
     private String email;
 
     @Column (name = "phone")
-    private int phone;
+    private String phone;
 
     @Column (name = "password", nullable = false, length = 100)
     private String password;

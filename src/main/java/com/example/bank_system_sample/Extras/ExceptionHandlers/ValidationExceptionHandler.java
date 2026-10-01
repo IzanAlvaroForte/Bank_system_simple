@@ -1,7 +1,6 @@
 package com.example.bank_system_sample.Extras.ExceptionHandlers;
 
 import com.example.bank_system_sample.DTO.Response.ErrorResponse.ValidationResponseDTO;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
