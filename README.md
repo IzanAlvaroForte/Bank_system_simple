@@ -9,29 +9,7 @@ Designed with enterprise architecture in mind — layered structure, ACID transa
 
 This project follows a **Layered Architecture** (Controller → Service → Repository → Entity).
 
-┌────────────────────────────────────────────────────────────────┐
-│ CONTROLLERS                                                    │
-│ CustomerController | AccountController | TransactionController │
-└──────────────────────────┬─────────────────────────────────────┘
-│
-▼
-┌───────────────────────────────────────────────────────┐
-│ SERVICES │                                            │
-│ CustomerService | AccountService | TransactionService │
-└──────────────────────────┬────────────────────────────┘
-│
-▼
-┌──────────────────────────────────────────────┐
-│ REPOSITORIES │                               │
-│ CustomerRepo | AccountRepo | TransactionRepo │
-└──────────────────────────┬───────────────────┘
-│
-▼
-┌─────────────────────────────────────┐
-│ DATABASE │                          │
-│ customers | accounts | transactions │
-└─────────────────────────────────────┘
-
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/074d1b19-d87b-400f-a6f4-d4c59f5e4e87" />
 
 ---
 
