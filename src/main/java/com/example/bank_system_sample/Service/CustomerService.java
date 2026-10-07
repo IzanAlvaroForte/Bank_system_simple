@@ -6,64 +6,110 @@ import com.example.bank_system_sample.DTO.Request.CustomerRequest.CustomerRegist
 import com.example.bank_system_sample.DTO.Request.CustomerRequest.CustomerUpdateRequest;
 import com.example.bank_system_sample.DTO.Response.CustomerResponse.*;
 import com.example.bank_system_sample.Entity.Customer;
+import com.example.bank_system_sample.Extras.CodeGenerators;
+import com.example.bank_system_sample.Extras.ExceptionHandlers.CustomerHandler.Exceptions.CustomerEmailAlreadyExistsException;
+import com.example.bank_system_sample.Extras.ExceptionHandlers.CustomerHandler.Exceptions.CustomerNotFoundException;
+import com.example.bank_system_sample.Extras.ExceptionHandlers.CustomerHandler.Exceptions.InvalidCredentialsException;
 import com.example.bank_system_sample.Extras.Mappers.CustomerMapper;
 import com.example.bank_system_sample.Repository.CustomerRepository;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
 
-    private CustomerMapper customerMapper;
-    private CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
+    private final CustomerRepository customerRepository;
+    private final CodeGenerators codeGenerator;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public CustomerRegisterResponse customerRegisterResponse
             (CustomerRegisterRequest customerRegisterRequest) {
-        return new CustomerRegisterResponse();
+
+        if (customerRepository.existsByEmail(customerRegisterRequest.getEmail())) {
+            throw new CustomerEmailAlreadyExistsException(customerRegisterRequest.getEmail());
+        }
+
+        Customer customer = customerMapper.registerToEntity(customerRegisterRequest);
+
+        String code;
+        do {
+            code = codeGenerator.codeForCustomer();
+        } while (customerRepository.existsByCustomerCode(code));
+        customer.setCustomerCode(code);
+
+        String hashedPassword = passwordEncoder.encode(customerRegisterRequest.getPassword());
+        customer.setPassword(hashedPassword);
+
+        customerRepository.save(customer);
+        return customerMapper.registerToResponse(customer);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public CustomerLoginResponse customerLoginResponse
             (CustomerLoginRequest customerLoginRequest) {
-        return new CustomerLoginResponse();
+        Customer customer = customerRepository.findByEmail(customerLoginRequest.getEmail())
+                .orElseThrow(() -> new InvalidCredentialsException());
+
+        if(!passwordEncoder.matches(customerLoginRequest.getPassword(), customer.getPassword())) {
+            throw new InvalidCredentialsException();
+        }
+
+        return customerMapper.loginToResponse(customer);
     }
 
     @Transactional
     public CustomerUpdateResponse customerUpdateResponse
-            (CustomerUpdateRequest customerUpdateRequest) {
-        return new CustomerUpdateResponse();
+            (CustomerUpdateRequest customerUpdateRequest, String customerCode) {
+        Customer customer = customerRepository.findByCustomerCode(customerCode)
+                .orElseThrow(() -> new CustomerNotFoundException(customerCode));
+
+        customer.setFirstName(customerUpdateRequest.getFirstName());
+        customer.setLastName(customerUpdateRequest.getLastName());
+        customer.setEmail(customerUpdateRequest.getEmail());
+        customer.setPhone(customerUpdateRequest.getPhone());
+
+        customerRepository.save(customer);
+
+        return customerMapper.updateToResponse(customer);
     }
 
     @Transactional
     public CustomerChangedPassResponse customerChangedPassResponse
-            (CustomerChangedPassRequest customerChangedPassRequest) {
-        return new CustomerChangedPassResponse();
+            (CustomerChangedPassRequest customerChangedPassRequest, String customerCode) {
+        Customer customer = customerRepository.findByCustomerCode(customerCode)
+                .orElseThrow(() -> new CustomerNotFoundException(customerCode));
+
+        if(!passwordEncoder.matches(customerChangedPassRequest.getCurrentPassword(), customer.getPassword())) {
+            throw new InvalidCredentialsException();
+        }
+
+        String hashedPassword = passwordEncoder.encode(customerChangedPassRequest.getNewPassword());
+        customer.setPassword(hashedPassword);
+
+        customerRepository.save(customer);
+        return customerMapper.changedPassToResponse(customer);
     }
 
+    @Transactional(readOnly = true)
     public Page<CustomerSummaryResponse> getAllCustomers(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return customerRepository.findAll(pageable)
-                .map(customer -> new CustomerSummaryResponse(
-                        customer.getCustomerCode(),
-                        customer.getFirstName(),
-                        customer.getLastName(),
-                        customer.getEmail()
-                ));
+                .map(customerMapper::summaryToResponse);
     }
 
+    @Transactional(readOnly = true)
     public CustomerViewProfileResponse getCustomerByCode(String customerCode) {
         Customer customer = customerRepository.findByCustomerCode(customerCode)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
-        return new CustomerViewProfileResponse();
+                .orElseThrow(() -> new CustomerNotFoundException(customerCode));
+        return customerMapper.viewProfToResponse(customer);
     }
 }

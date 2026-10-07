@@ -4,6 +4,7 @@ package com.example.bank_system_sample.Extras.Mappers;
 import com.example.bank_system_sample.DTO.Request.AccountRequest.AccountOpenRequest;
 
 import com.example.bank_system_sample.DTO.Response.AccountResponse.AccountListResponse;
+import com.example.bank_system_sample.DTO.Response.AccountResponse.AccountOpenResponse;
 import com.example.bank_system_sample.DTO.Response.AccountResponse.AccountStatusUpdateResponse;
 import com.example.bank_system_sample.DTO.Response.AccountResponse.AccountViewResponse;
 import com.example.bank_system_sample.Entity.Account;
@@ -51,6 +52,17 @@ public class AccountMapper {
                 .accountStatus(statusUpdate.getAccountStatus())
                 .confirmationMessage("Status updated successful")
                 .updatedAt(statusUpdate.getUpdatedAt())
+                .build();
+    }
+
+    public AccountOpenResponse openToResponse(
+            Account openAccount) {
+        return AccountOpenResponse.builder()
+                .accountCode(openAccount.getAccountCode())
+                .accountType(openAccount.getAccountType())
+                .accountStatus(openAccount.getAccountStatus())
+                .balance(openAccount.getBalance())
+                .createdAt(openAccount.getCreatedAt())
                 .build();
     }
 

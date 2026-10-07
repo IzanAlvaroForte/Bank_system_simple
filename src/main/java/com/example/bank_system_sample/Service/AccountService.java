@@ -7,50 +7,93 @@ import com.example.bank_system_sample.DTO.Response.AccountResponse.AccountOpenRe
 import com.example.bank_system_sample.DTO.Response.AccountResponse.AccountStatusUpdateResponse;
 import com.example.bank_system_sample.DTO.Response.AccountResponse.AccountViewResponse;
 import com.example.bank_system_sample.Entity.Account;
+import com.example.bank_system_sample.Entity.AccountStatus;
+import com.example.bank_system_sample.Entity.Customer;
+import com.example.bank_system_sample.Extras.CodeGenerators;
+import com.example.bank_system_sample.Extras.ExceptionHandlers.AccountHandler.Exceptions.AccountNotFoundException;
+import com.example.bank_system_sample.Extras.ExceptionHandlers.CustomerHandler.Exceptions.CustomerNotFoundException;
 import com.example.bank_system_sample.Extras.Mappers.AccountMapper;
 import com.example.bank_system_sample.Repository.AccountRepository;
-import jakarta.transaction.Transactional;
+import com.example.bank_system_sample.Repository.CustomerRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class AccountService {
 
-    private AccountMapper accountMapper;
-    private AccountRepository accountRepository;
+    private final AccountMapper accountMapper;
+    private final AccountRepository accountRepository;
+    private final CodeGenerators codeGenerators;
+    private final CustomerRepository customerRepository;
 
     @Transactional
     public AccountOpenResponse accountOpenResponse
-            (AccountOpenRequest accountOpenRequest) {
-        return new AccountOpenResponse();
+            (AccountOpenRequest accountOpenRequest, String customerCode) {
+
+        Customer customer = customerRepository.findByCustomerCode(customerCode)
+                .orElseThrow(() -> new CustomerNotFoundException(customerCode));
+
+        Account account = accountMapper.accountOpenToEntity(accountOpenRequest);
+        account.setCustomer(customer);
+        account.setAccountStatus(AccountStatus.ACTIVE);
+        account.setBalance(BigDecimal.ZERO);
+
+        String prefix = account.getAccountType().getPrefix();
+        String code;
+        do {
+            code = codeGenerators.accountCode(prefix);
+        } while (accountRepository.existsByAccountCode(code));
+        account.setAccountCode(code);
+
+        accountRepository.save(account);
+        return accountMapper.openToResponse(account);
     }
 
     @Transactional
     public AccountStatusUpdateResponse accountStatusUpdateResponse
-            (AccountStatusUpdateRequest accountStatusUpdateRequest) {
-        return new AccountStatusUpdateResponse();
-    }
+            (AccountStatusUpdateRequest accountStatusUpdateRequest,
+             String accountCode) {
 
-    public AccountViewResponse getAccountByCode(String accountCode) {
         Account account = accountRepository.findByAccountCode(accountCode)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
-        return new AccountViewResponse();
+                .orElseThrow(() -> new AccountNotFoundException(accountCode));
+        account.setAccountStatus(accountStatusUpdateRequest.getAccountStatus());
+
+        if (accountStatusUpdateRequest.getAccountStatus() == AccountStatus.CLOSED) {
+            account.setClosedAt(LocalDateTime.now());
+        }
+        accountRepository.save(account);
+        return accountMapper.statusUpdateToResponse(account);
     }
 
-    public Page<AccountListResponse> getAllAccount(int page, int size) {
+    @Transactional(readOnly = true)
+    public AccountViewResponse getAccountByCode
+            (String accountCode) {
+
+        Account account = accountRepository.findByAccountCode(accountCode)
+                .orElseThrow(() -> new AccountNotFoundException(accountCode));
+
+        return accountMapper.accountViewToResponse(account);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AccountListResponse> getAllAccounts(
+            int page, int size,
+            String customerCode) {
+        Customer customer = customerRepository.findByCustomerCode(customerCode)
+                .orElseThrow(() -> new CustomerNotFoundException(customerCode));
+
         Pageable pageable = PageRequest.of(page, size);
-        return accountRepository.findAll(pageable)
-                .map(account -> new AccountListResponse(
-                        account.getAccountCode(),
-                        account.getAccountType(),
-                        account.getAccountStatus(),
-                        account.getBalance(),
-                        account.getCreatedAt()
-                ));
+        return accountRepository.findByCustomerId(customer.getId(), pageable)
+                .map(accountMapper::accountListToResponse);
     }
 
 }
