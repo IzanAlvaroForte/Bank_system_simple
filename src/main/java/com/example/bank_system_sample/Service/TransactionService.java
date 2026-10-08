@@ -180,10 +180,14 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TransactionSummaryResponse> getAllTransactionSummary
-            (int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return transactionRepository.findAll(pageable)
+    public Page<TransactionSummaryResponse> getTransactionHistory(
+            String accountCode, Pageable pageable) {
+
+        Account account = accountRepository.findByAccountCode(accountCode)
+                .orElseThrow(() -> new AccountNotFoundException(accountCode));
+
+        return transactionRepository
+                .findByFromAccountIdOrAccountId(account.getId(), account.getId(), pageable)
                 .map(transactionMapper::summaryToResponse);
     }
 }

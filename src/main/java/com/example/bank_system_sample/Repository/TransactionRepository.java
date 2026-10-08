@@ -12,9 +12,9 @@ import java.util.Optional;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     Optional<Transaction> findByTransactionCode(String transactionCode);
-    Page<Transaction> findByFromAccountIDoOrAccountId(Long fromAccountId,
-                                                   Long toAccountId,
-                                                   Pageable pageable);
+    Page<Transaction> findByFromAccountIdOrAccountId(Long fromAccountId,
+                                                     Long toAccountId,
+                                                     Pageable pageable);
 
     Boolean existsByTransactionCode(String transactionCode);
 
