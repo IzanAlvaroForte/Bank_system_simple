@@ -48,7 +48,7 @@ public class TransactionService {
         }
 
         if (account.getAccountStatus() != AccountStatus.ACTIVE) {
-            throw new RuntimeException(accountCode);
+            throw new AccountNotActiveException(accountCode);
         }
 
         account.setBalance(account.getBalance().add(transactionDepositRequest.getAmount()));
@@ -80,6 +80,10 @@ public class TransactionService {
         Account account = accountRepository.findByAccountCode(accountCode)
                 .orElseThrow(() -> new AccountNotFoundException(accountCode));
 
+        if (account.getAccountStatus() != AccountStatus.ACTIVE) {
+            throw new AccountNotActiveException(accountCode);
+        }
+
         if (transactionWithdrawRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidAmountException("Amount must be greater than zero");
         }
@@ -87,12 +91,6 @@ public class TransactionService {
         if (account.getBalance().compareTo(transactionWithdrawRequest.getAmount()) < 0) {
             throw new InsufficientFundsException(transactionWithdrawRequest.getAmount());
         }
-
-        if (account.getAccountStatus() != AccountStatus.ACTIVE) {
-            throw new AccountNotActiveException(accountCode);
-        }
-
-
 
         account.setBalance(account.getBalance().subtract(transactionWithdrawRequest.getAmount()));
         account.setLastTransactionAt(LocalDateTime.now());

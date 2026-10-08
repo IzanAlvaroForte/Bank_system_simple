@@ -16,6 +16,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                                                        Long toAccountId,
                                                        Pageable pageable);
 
-    Boolean existsByTransactionCode(String transactionCode);
+    boolean existsByTransactionCode(String transactionCode);
 
 }

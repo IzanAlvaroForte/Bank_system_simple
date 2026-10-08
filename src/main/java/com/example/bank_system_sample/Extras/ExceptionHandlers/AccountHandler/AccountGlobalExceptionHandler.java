@@ -40,6 +40,7 @@ public class AccountGlobalExceptionHandler {
         return ResponseEntity.status(400).body(lackFundsResponse);
     }
 
+    @ExceptionHandler(AccountNotActiveException.class)
     public ResponseEntity<ErrorResponseDTO> accountNotActive
             (AccountNotActiveException ex) {
 
