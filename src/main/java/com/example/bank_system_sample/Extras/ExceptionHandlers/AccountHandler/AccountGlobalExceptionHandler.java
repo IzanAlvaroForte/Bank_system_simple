@@ -1,6 +1,7 @@
 package com.example.bank_system_sample.Extras.ExceptionHandlers.AccountHandler;
 
 import com.example.bank_system_sample.DTO.Response.ErrorResponse.ErrorResponseDTO;
+import com.example.bank_system_sample.Extras.ExceptionHandlers.AccountHandler.Exceptions.AccountNotActiveException;
 import com.example.bank_system_sample.Extras.ExceptionHandlers.AccountHandler.Exceptions.AccountNotFoundException;
 import com.example.bank_system_sample.Extras.ExceptionHandlers.AccountHandler.Exceptions.InsufficientFundsException;
 import org.springframework.http.HttpStatus;
@@ -37,5 +38,17 @@ public class AccountGlobalExceptionHandler {
         );
 
         return ResponseEntity.status(400).body(lackFundsResponse);
+    }
+
+    public ResponseEntity<ErrorResponseDTO> accountNotActive
+            (AccountNotActiveException ex) {
+
+        ErrorResponseDTO accountNotActiveResponse = new ErrorResponseDTO(
+                LocalDateTime.now(),
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.toString()
+        );
+
+        return ResponseEntity.status(400).body(accountNotActiveResponse);
     }
 }
