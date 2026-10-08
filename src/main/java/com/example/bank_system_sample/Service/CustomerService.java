@@ -100,8 +100,7 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CustomerSummaryResponse> getAllCustomers(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<CustomerSummaryResponse> getAllCustomers(Pageable pageable) {
         return customerRepository.findAll(pageable)
                 .map(customerMapper::summaryToResponse);
     }

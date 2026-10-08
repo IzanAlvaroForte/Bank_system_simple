@@ -86,12 +86,11 @@ public class AccountService {
 
     @Transactional(readOnly = true)
     public Page<AccountListResponse> getAllAccounts(
-            int page, int size,
+            Pageable pageable,
             String customerCode) {
         Customer customer = customerRepository.findByCustomerCode(customerCode)
                 .orElseThrow(() -> new CustomerNotFoundException(customerCode));
 
-        Pageable pageable = PageRequest.of(page, size);
         return accountRepository.findByCustomerId(customer.getId(), pageable)
                 .map(accountMapper::accountListToResponse);
     }

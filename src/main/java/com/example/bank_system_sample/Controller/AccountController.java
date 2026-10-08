@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,13 +55,16 @@ public class AccountController {
 
     @GetMapping("/customer/{customerCode}")
     public ResponseEntity<Page<AccountListResponse>> listAccounts
-            (@PageableDefault(size =  10) Pageable pageable,
+            (@PageableDefault
+                     (size = 10,
+                         page = 0,
+                         sort = "createdAt",
+                         direction = Sort.Direction.DESC) Pageable pageable,
              @PathVariable String customerCode) {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(accountService.getAllAccounts(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
+                        pageable,
                         customerCode
                 ));
     }

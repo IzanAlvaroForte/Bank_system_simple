@@ -120,6 +120,7 @@ public class TransactionService {
     @Transactional
     public TransactionTransferResponse transactionTransferResponse
             (TransactionTransferRequest transactionTransferRequest) {
+
         Account fromAccount = accountRepository.findByAccountCode(transactionTransferRequest.getFromAccountCode())
                 .orElseThrow(() -> new AccountNotFoundException(transactionTransferRequest.getFromAccountCode()));
         Account toAccount = accountRepository.findByAccountCode(transactionTransferRequest.getToAccountCode())
@@ -128,11 +129,9 @@ public class TransactionService {
         if (transactionTransferRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidAmountException("Amount must be greater than zero");
         }
-
         if (fromAccount.getBalance().compareTo(transactionTransferRequest.getAmount()) < 0) {
             throw new InsufficientFundsException(transactionTransferRequest.getAmount());
         }
-
         if (fromAccount.getAccountCode().equals(toAccount.getAccountCode())) {
             throw new IllegalArgumentException("Cannot transfer to the same account");
         }
@@ -181,13 +180,13 @@ public class TransactionService {
 
     @Transactional(readOnly = true)
     public Page<TransactionSummaryResponse> getTransactionHistory(
-            String accountCode, Pageable pageable) {
+            Pageable pageable, String accountCode) {
 
         Account account = accountRepository.findByAccountCode(accountCode)
                 .orElseThrow(() -> new AccountNotFoundException(accountCode));
 
         return transactionRepository
-                .findByFromAccountIdOrAccountId(account.getId(), account.getId(), pageable)
+                .findByFromAccountIdOrToAccountId(account.getId(), account.getId(), pageable)
                 .map(transactionMapper::summaryToResponse);
     }
 }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,7 @@ public class CustomerController {
                 .body(customerService.customerUpdateResponse(customerUpdateRequest, customerCode));
     }
 
-    @PatchMapping("/changePass/{customerCode}/password")
+    @PatchMapping("/{customerCode}/password")
     public ResponseEntity<CustomerChangedPassResponse> changedPassCustomer
             (@Valid @RequestBody CustomerChangedPassRequest customerChangedPassRequest,
              @PathVariable String customerCode) {
@@ -57,15 +58,15 @@ public class CustomerController {
                 .body(customerService.customerChangedPassResponse(customerChangedPassRequest, customerCode));
     }
 
-    @GetMapping("/allCustomers")
+    @GetMapping
     public ResponseEntity<Page<CustomerSummaryResponse>> getAllCustomers
-            (@PageableDefault(size = 10) Pageable pageable) {
+            (@PageableDefault(size = 10,
+                                page = 0,
+                                sort = "createdAt",
+                                direction = Sort.Direction.DESC) Pageable pageable) {
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body(customerService.getAllCustomers(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize()
-                ));
+                .body(customerService.getAllCustomers(pageable));
     }
 
     @GetMapping("/{customerCode}")
