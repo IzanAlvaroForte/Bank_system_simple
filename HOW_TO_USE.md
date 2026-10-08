@@ -45,7 +45,7 @@ You create the database. Spring Boot creates everything inside it.
 
 ## 4. Run the app
 
-In termainal:
+In terminal:
 
 ```terminal
 mvn spring-boot:run
