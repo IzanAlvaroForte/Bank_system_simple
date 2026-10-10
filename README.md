@@ -62,18 +62,3 @@ This project follows a **Layered Architecture**:
 | Build | Maven |
 | Version Control | Git |
 
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Java 17+
-- PostgreSQL
-- Maven
-
-### Setup
-
-1. **Clone the repo**
-   ```bash
-   git clone https://github.com/IzanAlvaroForte/Bank_system_simple_no_security.git
-   cd Bank_system_simple_no_security
