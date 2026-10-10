@@ -15,13 +15,13 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class TransactionTransferRequest {
 
-    @NotNull(message = "From account code is required")
+    @NotBlank(message = "From account code is required")
     private String fromAccountCode;
 
-    @NotNull(message = "To account code is required")
+    @NotBlank(message = "To account code is required")
     private String toAccountCode;
 
-    @NotBlank(message = "Amount is required")
+    @NotNull(message = "Amount is required")
     @Positive(message = "Must be greater than zero")
     private BigDecimal amount;
 }

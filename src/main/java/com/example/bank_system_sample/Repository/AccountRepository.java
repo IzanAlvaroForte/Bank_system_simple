@@ -18,5 +18,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByAccountCode(String accountCode);
     Boolean existsByAccountCode(String accountCode);
     Page<Account> findByCustomerId(Long customerId, Pageable pageable);
-    List<Account> findByStatusAndLastTransactionAtBefore(AccountStatus status, LocalDateTime lastTransactionAt);
+    List<Account> findByAccountStatusAndLastTransactionAtBefore(
+            AccountStatus accountStatus, LocalDateTime lastTransactionAt);
 }

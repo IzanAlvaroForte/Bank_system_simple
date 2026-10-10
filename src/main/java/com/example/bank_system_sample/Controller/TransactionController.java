@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/api/transactions")
+@RequestMapping("/api/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
 
@@ -39,6 +39,7 @@ public class TransactionController {
     public ResponseEntity<TransactionWithdrawResponse> withdrawTransaction(
             @Valid @RequestBody TransactionWithdrawRequest transactionWithdrawRequest,
             @PathVariable String accountCode) {
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(transactionService.transactionWithdrawResponse(transactionWithdrawRequest, accountCode));
 

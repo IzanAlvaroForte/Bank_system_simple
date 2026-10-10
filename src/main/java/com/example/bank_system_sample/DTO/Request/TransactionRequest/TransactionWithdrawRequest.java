@@ -1,6 +1,7 @@
 package com.example.bank_system_sample.DTO.Request.TransactionRequest;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,10 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class TransactionWithdrawRequest {
 
-    @NotBlank(message = "Account code is required")
-    private String accountCode;
-
-    @NotBlank(message = "Amount is required")
+    @NotNull(message = "Amount is required")
     @Positive(message = "Must be greater than zero")
     private BigDecimal amount;
 }
