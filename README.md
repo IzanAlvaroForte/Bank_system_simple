@@ -3,7 +3,7 @@
 A simple banking backend built with Java and Spring Boot. Designed for 
 learning, practice, and as a starting point for your own projects.
 
-> ⚠️ **Learning project only** — no authentication, not production-ready.
+**API backend for banking operations demonstrating ACID transactions and data integrity.**
 
 ---
 
