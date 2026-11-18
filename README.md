@@ -47,7 +47,7 @@ This project follows a **Layered Architecture**:
 - **Pagination** — `Pageable` on all list endpoints, with sorting
 - **Custom IDs** — `customerCode`, `accountCode`, `transactionCode` (non-guessable)
 
-## 🔐 Authentication & Security
+### Authentication & Security
 - **JWT Authentication:** Stateless authentication using JSON Web Tokens for secure API access.
 - **Password Hashing:** Passwords are securely hashed using BCrypt before storage.
 - **Security Filter:** Custom JWT filter intercepts requests to validate tokens and set the security context.
